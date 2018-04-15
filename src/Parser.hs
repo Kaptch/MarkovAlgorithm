@@ -1,38 +1,41 @@
 module Parser where
 import Text.ParserCombinators.Parsec
 
+data Substitution = Simple { left :: String, right :: String }
+                       | Final  { left :: String, right :: String }
+
 {-
 Grammar:
-    <left>->[.]<right>
-
-    ab\to a,\\
-    b\to\varepsilon,\\
-    a\to b;
-
-    ab\to a,\\
-    b\tof\varepsilon,\\
-    a\to b;
-
-Output example:
-    0 \xtod{(ж)} a0 \xtod{(г)}0a \xtod{(е)}0b\xtod{(а)}1\\
+    <left> ->[.] <right>
 -}
 
-eol :: GenParser Char st String
-eol = string ";" <|> string ",\\"
+eol :: GenParser Char st Char
+eol = char '\n'
 
-word :: GenParser Char st String
-word = many $ noneOf "->."
-{-
-substitutionType :: GenParser Char st String
-substitutionType = try
+substitutionFile :: GenParser Char st [Substitution]
+substitutionFile =
+    do result <- many line
+       eof
+       return result
 
-substitution :: GenParser Char st [[String]]
-substitution = do result <- many line
-                  eof
-                  return result
+simpleSubstitution :: GenParser Char st Substitution
+simpleSubstitution =
+    do lt <- many $ noneOf "-"
+       arr <- string "->"
+       rt <- many $ noneOf ",\n"
+       eol
+       return $ Simple lt rt
 
-line :: GenParser Char st [String]
-line = do left <- word
+finalSubstitution :: GenParser Char st Substitution
+finalSubstitution =
+    do lt <- many $ noneOf "-"
+       arr <- string "->."
+       rt <- many $ noneOf ",\n"
+       eol
+       return $ Final lt rt
 
-          right <- word
--}
+line :: GenParser Char st Substitution
+line = try finalSubstitution <|> simpleSubstitution
+
+parseSubstitutions :: String -> Either ParseError [Substitution]
+parseSubstitutions = parse substitutionFile "(unknown)"
