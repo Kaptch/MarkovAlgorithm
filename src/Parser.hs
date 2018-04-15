@@ -1,12 +1,10 @@
 module Parser where
 import Text.ParserCombinators.Parsec
-
-data Substitution = Simple { left :: String, right :: String }
-                       | Final  { left :: String, right :: String }
+import Substitution
 
 {-
 Grammar:
-    <left> ->[.] <right>
+    <left>->[.]<right>
 -}
 
 eol :: GenParser Char st Char
@@ -23,7 +21,7 @@ simpleSubstitution =
     do lt <- many $ noneOf "-"
        arr <- string "->"
        rt <- many $ noneOf ",\n"
-       eol
+       try eol
        return $ Simple lt rt
 
 finalSubstitution :: GenParser Char st Substitution
@@ -31,7 +29,7 @@ finalSubstitution =
     do lt <- many $ noneOf "-"
        arr <- string "->."
        rt <- many $ noneOf ",\n"
-       eol
+       try eol
        return $ Final lt rt
 
 line :: GenParser Char st Substitution
