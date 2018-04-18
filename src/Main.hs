@@ -13,7 +13,7 @@ main = do args <- getArgs
               [x] -> error "meh"
               (fname:word:_) -> do
                 fileCont <- readFile fname
-                let trySubs = parseSubstitutions fileCont in
+                let trySubs = parseSubstitutions fname fileCont in
                     case trySubs of
-                        Left err -> putStr "error"
+                        Left err -> putStr $ show err
                         Right subs -> evalStateT (runAlgo subs) word
