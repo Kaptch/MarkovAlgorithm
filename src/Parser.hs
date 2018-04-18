@@ -35,5 +35,5 @@ finalSubstitution =
 line :: GenParser Char st Substitution
 line = try finalSubstitution <|> simpleSubstitution
 
-parseSubstitutions :: String -> Either ParseError [Substitution]
-parseSubstitutions = parse substitutionFile "(unknown)"
+parseSubstitutions :: String -> String -> Either ParseError [Substitution]
+parseSubstitutions fn = parse substitutionFile fn
