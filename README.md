@@ -5,4 +5,5 @@
 ```shell
 usage: <filename> <input word>
 substitution file should consist of lines: <left>->[.]<right>
+empty word is "//", it can be configured in Main.hs (emptyWord)
 ```
